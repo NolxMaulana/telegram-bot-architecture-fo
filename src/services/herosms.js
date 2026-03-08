@@ -1,9 +1,10 @@
-import { cfg } from "../lib/config.js";
+import { getEffectiveConfigValue } from "../lib/configRuntime.js";
 import { safeErr, logInfo, logWarn } from "../lib/logger.js";
 
 function buildUrl(action, extra = {}) {
-  const url = new URL(cfg.HERO_SMS_BASE_URL || "https://hero-sms.com/stubs/handler_api.php");
-  url.searchParams.set("api_key", cfg.HERO_SMS_API_KEY);
+  const base = getEffectiveConfigValue("HERO_SMS_BASE_URL") || "https://hero-sms.com/stubs/handler_api.php";
+  const url = new URL(base);
+  url.searchParams.set("api_key", process.env.HERO_SMS_API_KEY || "");
   url.searchParams.set("action", action);
   for (const [key, value] of Object.entries(extra)) {
     if (value === undefined || value === null || value === "") continue;
@@ -25,21 +26,21 @@ function parseTextResponse(text) {
 
   const parts = raw.split(":");
   const code = parts[0];
-  if (["ACCESS_BALANCE", "STATUS_OK", "STATUS_WAIT_CODE", "STATUS_CANCEL", "STATUS_FINISH", "STATUS_WAIT_RESEND", "STATUS_WAIT_RETRY", "NEW_OTP_RECEIVED", "OTP_RECEIVED"].includes(code)) {
+  if (["ACCESS_BALANCE", "STATUS_OK", "STATUS_WAIT_CODE", "STATUS_CANCEL", "STATUS_FINISH", "STATUS_WAIT_RESEND", "STATUS_WAIT_RETRY", "NEW_OTP_RECEIVED", "OTP_RECEIVED", "ACCESS_NUMBER", "ACCESS_READY", "ACCESS_RETRY_GET", "ACCESS_ACTIVATION", "ACCESS_CANCEL"].includes(code)) {
     return { ok: true, code, raw, parts };
   }
   return { ok: false, errorCode: code, message: raw, raw, parts };
 }
 
 function parseStructuredResponse(json) {
-  if (json?.status === "success" || json?.success === true || json?.ok === true) {
+  if (json?.status === "success" || json?.success === true || json?.ok === true || json?.activationId) {
     return { ok: true, code: json.status || "OK", data: json, raw: JSON.stringify(json).slice(0, 400) };
   }
-  if (json?.error || json?.message || json?.status === "error") {
+  if (json?.error || json?.message || json?.status === "error" || json?.title) {
     return {
       ok: false,
-      errorCode: json.errorCode || json.error || json.code || "UPSTREAM_ERROR",
-      message: json.message || json.error || "Upstream error",
+      errorCode: json.errorCode || json.error || json.code || json.title || "UPSTREAM_ERROR",
+      message: json.message || json.error || json.details || "Upstream error",
       data: json,
       raw: JSON.stringify(json).slice(0, 400),
       minPrice: json.minPrice || json.min_price || undefined,

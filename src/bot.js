@@ -40,7 +40,8 @@ export async function createBot({ botProfile }) {
     { command: "cancel", description: "Cancel activation" },
     { command: "retry", description: "Request another SMS" },
     { command: "finish", description: "Finish activation" },
-    { command: "status", description: "Admin status/defaults" }
+    { command: "env", description: "Owner runtime config" },
+    { command: "status", description: "Owner status" }
   ]).catch((err) => {
     logWarn("telegram.setMyCommands.failed", { err: safeErr(err) });
   });

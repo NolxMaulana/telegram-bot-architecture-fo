@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 import { cfg } from "./config.js";
-import { logInfo, logError, safeErr } from "./logger.js";
+import { logInfo, logError, logWarn, safeErr } from "./logger.js";
 
 let client = null;
 let db = null;
@@ -11,9 +11,9 @@ export async function connectDb() {
   if (!cfg.MONGODB_URI) {
     if (!warnedNoDb) {
       warnedNoDb = true;
-      logError("db.connect.failed", { collection: "*", operation: "connect", err: "MONGODB_URI missing" });
+      logWarn("db.disabled", { mongoSet: false, reason: "MONGODB_URI missing" });
     }
-    throw new Error("MONGODB_URI is required for this bot.");
+    return null;
   }
 
   try {
@@ -25,7 +25,7 @@ export async function connectDb() {
     return db;
   } catch (err) {
     logError("db.connect.failed", { collection: "*", operation: "connect", err: safeErr(err) });
-    throw err;
+    return null;
   }
 }
 
@@ -35,6 +35,7 @@ export async function getDb() {
 }
 
 async function ensureIndexes(database) {
+  if (!database) return;
   await database.collection("orders").createIndex({ orderId: 1 }, { unique: true });
   await database.collection("orders").createIndex({ activationId: 1 }, { sparse: true });
   await database.collection("orders").createIndex({ status: 1, pollAfter: 1 });
@@ -42,4 +43,6 @@ async function ensureIndexes(database) {
   await database.collection("webhook_events").createIndex({ dedupeKey: 1 }, { unique: true });
   await database.collection("telegram_users").createIndex({ telegramUserId: 1 }, { unique: true });
   await database.collection("events").createIndex({ createdAt: -1 });
+  await database.collection("runtime_config").createIndex({ key: 1 }, { unique: true });
+  await database.collection("runtime_config_audit").createIndex({ key: 1, createdAt: -1 });
 }

@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { cfg } from "../lib/config.js";
+import { getEffectiveConfigValue } from "../lib/configRuntime.js";
 import { logInfo, logWarn, safeErr } from "../lib/logger.js";
 import { saveWebhookEvent, findOrderByActivationId, updateOrder } from "./orderStore.js";
 import { notifyOtpIfNew } from "./notifier.js";
@@ -25,13 +25,15 @@ function readBody(req) {
 }
 
 function isSecretValid(req, payload) {
-  if (!cfg.HERO_SMS_WEBHOOK_SECRET) return false;
+  const secret = getEffectiveConfigValue("HERO_SMS_WEBHOOK_SECRET") || "";
+  if (!secret) return false;
   const headerSecret = req.headers["x-herosms-secret"] || req.headers["x-webhook-secret"] || "";
-  return String(headerSecret) === String(cfg.HERO_SMS_WEBHOOK_SECRET) || String(payload?.secret || "") === String(cfg.HERO_SMS_WEBHOOK_SECRET);
+  return String(headerSecret) === String(secret) || String(payload?.secret || "") === String(secret);
 }
 
 export async function handleWebhook(req, res, bot) {
-  if (!cfg.HERO_SMS_WEBHOOK_SECRET) {
+  const secret = getEffectiveConfigValue("HERO_SMS_WEBHOOK_SECRET") || "";
+  if (!secret) {
     logWarn("webhook.disabled", { reason: "missing_secret" });
     return json(res, 200, { ok: true, disabled: true });
   }

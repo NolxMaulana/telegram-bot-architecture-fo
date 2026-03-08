@@ -18,6 +18,7 @@ export default function register(bot) {
       "/cancel 12345 - cancel activation",
       "/retry 12345 - request another SMS",
       "/finish 12345 - finish activation",
+      isOwner(ctx.from) ? "/env - owner-only runtime config editing" : "",
       isOwner(ctx.from) ? "/status - show defaults and basic admin status" : ""
     ].filter(Boolean);
 

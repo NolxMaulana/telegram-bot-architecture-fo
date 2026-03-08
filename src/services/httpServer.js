@@ -1,4 +1,4 @@
-import { cfg } from "../lib/config.js";
+import { isRuntimeConfigPersistenceAvailable } from "../lib/configRuntime.js";
 import { handleWebhook } from "./webhook.js";
 
 export function createHttpHandler({ bot }) {
@@ -12,8 +12,7 @@ export function createHttpHandler({ bot }) {
         ok: true,
         service: "Hero SMS Bot",
         webhookPath: "/webhooks/herosms",
-        publicBaseUrlConfigured: !!cfg.PUBLIC_BASE_URL,
-        webhookEnabled: !!cfg.HERO_SMS_WEBHOOK_SECRET,
+        configOverridesEnabled: isRuntimeConfigPersistenceAvailable(),
       }));
       return;
     }

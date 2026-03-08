@@ -1,7 +1,8 @@
 import "dotenv/config";
 import { createServer } from "node:http";
 import { cfg } from "./lib/config.js";
-import { safeErr, logInfo, logError, logWarn } from "./lib/logger.js";
+import { initializeRuntimeConfig } from "./lib/configRuntime.js";
+import { safeErr, logInfo, logError } from "./lib/logger.js";
 
 process.on("unhandledRejection", (err) => {
   logError("process.unhandledRejection", { err: safeErr(err) });
@@ -44,6 +45,7 @@ async function boot() {
     ]);
 
     await connectDb();
+    await initializeRuntimeConfig();
     const botProfile = buildBotProfile();
     const bot = await createBot({ botProfile });
 

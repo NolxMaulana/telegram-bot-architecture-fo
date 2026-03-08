@@ -12,7 +12,7 @@ export default function register(bot) {
       "HeroSMS OTP bot for authorized users.",
       "Focus: Philippines and Vietnam first, with other countries available too.",
       "Main commands: /balance /countries /services /prices /order /active /orders /cancel /retry /finish",
-      owner ? "You also have owner access to /status." : ""
+      owner ? "You also have owner access to /env and /status." : ""
     ].filter(Boolean);
 
     await ctx.reply(lines.join("\n"));

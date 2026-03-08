@@ -16,6 +16,10 @@
     "file": "src/commands/countries.js"
   },
   {
+    "name": "env",
+    "file": "src/commands/env.js"
+  },
+  {
     "name": "finish",
     "file": "src/commands/finish.js"
   },

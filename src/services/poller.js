@@ -1,4 +1,4 @@
-import { cfg } from "../lib/config.js";
+import { getEffectiveConfigValue } from "../lib/configRuntime.js";
 import { logInfo, logWarn, logError, safeErr } from "../lib/logger.js";
 import { findOrdersDueForPolling, updateOrder } from "./orderStore.js";
 import { getStatusV2, getStatus, getAllSms } from "./herosms.js";
@@ -13,7 +13,7 @@ function sleep(ms) {
 
 function extractOtp(statusResult, smsResult) {
   const code = statusResult?.data?.code || statusResult?.data?.smsCode || statusResult?.parts?.[1] || smsResult?.data?.code || "";
-  const text = statusResult?.data?.text || statusResult?.data?.sms || smsResult?.data?.text || smsResult?.raw || "";
+  const text = statusResult?.data?.text || statusResult?.data?.sms?.text || statusResult?.data?.sms || smsResult?.data?.text || smsResult?.raw || "";
   return { code: String(code || ""), text: String(text || "") };
 }
 
@@ -37,11 +37,12 @@ async function processOrder(bot, order) {
     const sms = await getAllSms(order.activationId);
     const localStatus = normalizeStatus(status);
     const otp = extractOtp(status, sms);
+    const pollInterval = getEffectiveConfigValue("POLL_INTERVAL_MS");
 
     await updateOrder({ orderId: order.orderId }, {
       localStatus,
       lastHeroStatus: status.code || status.errorCode || "",
-      pollAfter: new Date(Date.now() + cfg.POLL_INTERVAL_MS),
+      pollAfter: new Date(Date.now() + pollInterval),
       otpCode: otp.code || order.otpCode || "",
       otpText: otp.text || order.otpText || "",
     });
@@ -51,7 +52,7 @@ async function processOrder(bot, order) {
     }
   } catch (err) {
     logError("poll.cycle.item.failed", { activationId: order.activationId, err: safeErr(err) });
-    await updateOrder({ orderId: order.orderId }, { pollAfter: new Date(Date.now() + cfg.POLL_INTERVAL_MS * 2) });
+    await updateOrder({ orderId: order.orderId }, { pollAfter: new Date(Date.now() + getEffectiveConfigValue("POLL_INTERVAL_MS") * 2) });
   } finally {
     locks.delete(lockKey);
   }
@@ -60,7 +61,7 @@ async function processOrder(bot, order) {
 export function startPollingService({ bot }) {
   if (running) return;
   running = true;
-  logInfo("poll.start", { intervalMs: cfg.POLL_INTERVAL_MS, batchLimit: cfg.POLL_BATCH_LIMIT });
+  logInfo("poll.start", { intervalMs: getEffectiveConfigValue("POLL_INTERVAL_MS"), batchLimit: getEffectiveConfigValue("POLL_BATCH_LIMIT") });
 
   void (async function loop() {
     let cycle = 0;
@@ -68,7 +69,7 @@ export function startPollingService({ bot }) {
     while (running) {
       cycle += 1;
       try {
-        const due = await findOrdersDueForPolling(cfg.POLL_BATCH_LIMIT, new Date());
+        const due = await findOrdersDueForPolling(getEffectiveConfigValue("POLL_BATCH_LIMIT"), new Date());
         logInfo("poll.cycle", { cycle, due: due.length });
         for (const order of due) {
           await processOrder(bot, order);
@@ -83,7 +84,7 @@ export function startPollingService({ bot }) {
         const m = process.memoryUsage();
         console.log("[mem]", { rssMB: Math.round(m.rss / 1e6), heapUsedMB: Math.round(m.heapUsed / 1e6) });
       }
-      await sleep(cfg.POLL_INTERVAL_MS);
+      await sleep(getEffectiveConfigValue("POLL_INTERVAL_MS"));
     }
   })();
 }

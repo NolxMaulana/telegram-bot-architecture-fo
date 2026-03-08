@@ -1,4 +1,4 @@
-import { cfg } from "../lib/config.js";
+import { getEffectiveConfigValue } from "../lib/configRuntime.js";
 import { getCountries } from "./herosms.js";
 
 let cache = { ts: 0, items: [] };
@@ -13,9 +13,8 @@ function normalizeCountries(payload) {
 }
 
 function priorityNames() {
-  return String(cfg.DEFAULT_COUNTRY_PRIORITY || "Philippines,Vietnam")
-    .split(",")
-    .map((v) => v.trim().toLowerCase())
+  return getEffectiveConfigValue("DEFAULT_COUNTRY_PRIORITY")
+    .map((v) => String(v).trim().toLowerCase())
     .filter(Boolean);
 }
 

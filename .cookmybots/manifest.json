@@ -410,22 +410,138 @@
   ],
   "runStatuses": {
     "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7": {
-      "phase": "editing",
+      "phase": "reindex",
       "stage": "chat",
       "runId": "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7",
       "lastUserMessage": "environtment variable are edited from user",
       "startedAt": "2026-03-08T16:37:54.986Z",
-      "updatedAt": "2026-03-08T16:41:21.272Z",
-      "message": "Preparing workspace for safe edits…"
+      "updatedAt": "2026-03-08T16:41:23.543Z",
+      "message": "Syncing environment template with used env variables…",
+      "commands": [
+        {
+          "name": "active",
+          "file": "src/commands/active.js"
+        },
+        {
+          "name": "balance",
+          "file": "src/commands/balance.js"
+        },
+        {
+          "name": "cancel",
+          "file": "src/commands/cancel.js"
+        },
+        {
+          "name": "countries",
+          "file": "src/commands/countries.js"
+        },
+        {
+          "name": "env",
+          "file": "src/commands/env.js"
+        },
+        {
+          "name": "finish",
+          "file": "src/commands/finish.js"
+        },
+        {
+          "name": "help",
+          "file": "src/commands/help.js"
+        },
+        {
+          "name": "order",
+          "file": "src/commands/order.js"
+        },
+        {
+          "name": "orders",
+          "file": "src/commands/orders.js"
+        },
+        {
+          "name": "prices",
+          "file": "src/commands/prices.js"
+        },
+        {
+          "name": "retry",
+          "file": "src/commands/retry.js"
+        },
+        {
+          "name": "services",
+          "file": "src/commands/services.js"
+        },
+        {
+          "name": "start",
+          "file": "src/commands/start.js"
+        },
+        {
+          "name": "status",
+          "file": "src/commands/status.js"
+        }
+      ]
     }
   },
   "runStatus": {
-    "phase": "editing",
+    "phase": "reindex",
     "stage": "chat",
     "runId": "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7",
     "lastUserMessage": "environtment variable are edited from user",
     "startedAt": "2026-03-08T16:37:54.986Z",
-    "updatedAt": "2026-03-08T16:41:21.272Z",
-    "message": "Preparing workspace for safe edits…"
+    "updatedAt": "2026-03-08T16:41:23.543Z",
+    "message": "Syncing environment template with used env variables…",
+    "commands": [
+      {
+        "name": "active",
+        "file": "src/commands/active.js"
+      },
+      {
+        "name": "balance",
+        "file": "src/commands/balance.js"
+      },
+      {
+        "name": "cancel",
+        "file": "src/commands/cancel.js"
+      },
+      {
+        "name": "countries",
+        "file": "src/commands/countries.js"
+      },
+      {
+        "name": "env",
+        "file": "src/commands/env.js"
+      },
+      {
+        "name": "finish",
+        "file": "src/commands/finish.js"
+      },
+      {
+        "name": "help",
+        "file": "src/commands/help.js"
+      },
+      {
+        "name": "order",
+        "file": "src/commands/order.js"
+      },
+      {
+        "name": "orders",
+        "file": "src/commands/orders.js"
+      },
+      {
+        "name": "prices",
+        "file": "src/commands/prices.js"
+      },
+      {
+        "name": "retry",
+        "file": "src/commands/retry.js"
+      },
+      {
+        "name": "services",
+        "file": "src/commands/services.js"
+      },
+      {
+        "name": "start",
+        "file": "src/commands/start.js"
+      },
+      {
+        "name": "status",
+        "file": "src/commands/status.js"
+      }
+    ]
   }
 }

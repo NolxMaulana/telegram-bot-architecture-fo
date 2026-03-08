@@ -1,4 +1,4 @@
-import { cfg } from "../lib/config.js";
+import { getEffectiveConfigValue } from "../lib/configRuntime.js";
 import { logInfo } from "../lib/logger.js";
 import { getNumberV2, getPrices, getServicesList, getBalance, cancelActivation, finishActivation, setStatus, getStatusV2 } from "./herosms.js";
 import { resolveCountry } from "./countryCache.js";
@@ -22,10 +22,10 @@ function parsePurchaseSuccess(result) {
   if (result?.ok && result?.data?.activationId) {
     return {
       activationId: String(result.data.activationId),
-      phoneNumber: result.data.phone || result.data.number || "",
-      cost: result.data.cost || result.data.price || "",
+      phoneNumber: result.data.phoneNumber || result.data.phone || result.data.number || "",
+      cost: result.data.activationCost || result.data.cost || result.data.price || "",
       currency: result.data.currency || "USD",
-      operator: result.data.operator || "",
+      operator: result.data.activationOperator || result.data.operator || "",
       raw: result.raw || ""
     };
   }
@@ -46,11 +46,12 @@ function parsePurchaseSuccess(result) {
 export async function createConcurrentOrders({ requester, serviceCode, countryInput, operator, maxPrice, fixedPrice, quantity }) {
   const country = await resolveCountry(countryInput);
   const qty = Math.max(1, Math.min(20, Number(quantity || 1)));
+  const concurrencyLimit = getEffectiveConfigValue("ORDER_CONCURRENCY_LIMIT") || 3;
   const payloads = Array.from({ length: qty }).map(() => ({ country }));
 
-  const results = await runLimited(payloads, cfg.ORDER_CONCURRENCY_LIMIT, async () => {
+  const results = await runLimited(payloads, concurrencyLimit, async () => {
     const orderId = generateOrderId();
-    const baseOrder = await createOrder({
+    await createOrder({
       orderId,
       requesterId: String(requester.id),
       requesterUsername: requester.username || "",
@@ -111,7 +112,7 @@ export async function createConcurrentOrders({ requester, serviceCode, countryIn
       operator: success.operator || operator || "",
       rawResponseSnippet: success.raw,
       lastHeroStatus: "PURCHASED",
-      pollAfter: new Date(Date.now() + cfg.POLL_INTERVAL_MS),
+      pollAfter: new Date(Date.now() + getEffectiveConfigValue("POLL_INTERVAL_MS")),
     });
 
     logInfo("order.created", { orderId, activationId: success.activationId, requesterId: String(requester.id) });
@@ -158,7 +159,7 @@ export async function finishOrderByActivationId(activationId) {
 export async function retryOrderByActivationId(activationId) {
   const result = await setStatus(activationId, 3);
   if (result.ok) {
-    await updateOrder({ activationId: String(activationId) }, { localStatus: "waiting_retry", lastHeroStatus: result.code || "WAIT_RETRY", pollAfter: new Date(Date.now() + cfg.POLL_INTERVAL_MS) });
+    await updateOrder({ activationId: String(activationId) }, { localStatus: "waiting_retry", lastHeroStatus: result.code || "WAIT_RETRY", pollAfter: new Date(Date.now() + getEffectiveConfigValue("POLL_INTERVAL_MS")) });
   }
   return result;
 }
