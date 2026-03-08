@@ -1,0 +1,54 @@
+[
+  {
+    "name": "active",
+    "file": "src/commands/active.js"
+  },
+  {
+    "name": "balance",
+    "file": "src/commands/balance.js"
+  },
+  {
+    "name": "cancel",
+    "file": "src/commands/cancel.js"
+  },
+  {
+    "name": "countries",
+    "file": "src/commands/countries.js"
+  },
+  {
+    "name": "finish",
+    "file": "src/commands/finish.js"
+  },
+  {
+    "name": "help",
+    "file": "src/commands/help.js"
+  },
+  {
+    "name": "order",
+    "file": "src/commands/order.js"
+  },
+  {
+    "name": "orders",
+    "file": "src/commands/orders.js"
+  },
+  {
+    "name": "prices",
+    "file": "src/commands/prices.js"
+  },
+  {
+    "name": "retry",
+    "file": "src/commands/retry.js"
+  },
+  {
+    "name": "services",
+    "file": "src/commands/services.js"
+  },
+  {
+    "name": "start",
+    "file": "src/commands/start.js"
+  },
+  {
+    "name": "status",
+    "file": "src/commands/status.js"
+  }
+]
