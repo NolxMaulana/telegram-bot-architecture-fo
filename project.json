@@ -8,7 +8,6 @@
       "examples": [
         "User: /active → Bot: active order lines"
       ],
-      "example": "User: /active → Bot: active order lines",
       "notes": "Limited to the authorized requester’s own orders."
     },
     {
@@ -18,7 +17,6 @@
       "examples": [
         "User: /balance → Bot: Balance: 123.45"
       ],
-      "example": "User: /balance → Bot: Balance: 123.45",
       "notes": "Requires authorization."
     },
     {
@@ -28,7 +26,6 @@
       "examples": [
         "User: /cancel 12345 → Bot: Canceled 12345"
       ],
-      "example": "User: /cancel 12345 → Bot: Canceled 12345",
       "notes": "Also available from inline action buttons."
     },
     {
@@ -38,8 +35,18 @@
       "examples": [
         "User: /countries → Bot: prioritized country list"
       ],
-      "example": "User: /countries → Bot: prioritized country list",
       "notes": "Also shows inline selection buttons for top countries."
+    },
+    {
+      "command": "/env",
+      "description": "Owner-only runtime config management flow backed by MongoDB overrides.",
+      "usage": "/env, /env show KEY, /env edit KEY, /env cancel",
+      "examples": [
+        "Owner: /env → Bot: editable runtime config keys",
+        "Owner: /env show POLL_INTERVAL_MS → Bot: type, description, masked effective value",
+        "Owner: /env edit DEFAULT_MAX_PRICE → Bot: asks for a new value and confirmation"
+      ],
+      "notes": "Unauthorized users are denied. If MongoDB persistence is unavailable, the bot reports that edits cannot be saved."
     },
     {
       "command": "/finish",
@@ -48,7 +55,6 @@
       "examples": [
         "User: /finish 12345 → Bot: Finished 12345"
       ],
-      "example": "User: /finish 12345 → Bot: Finished 12345",
       "notes": "Also available from inline action buttons."
     },
     {
@@ -58,8 +64,7 @@
       "examples": [
         "User: /help → Bot: /balance, /countries, /services..."
       ],
-      "example": "User: /help → Bot: /balance, /countries, /services...",
-      "notes": "Owner-only /status is shown only to owners."
+      "notes": "Owner-only /env and /status are shown only to owners."
     },
     {
       "command": "/order",
@@ -68,7 +73,6 @@
       "examples": [
         "User: /order service=wa country=philippines qty=3 → Bot: per-order success/failure summary"
       ],
-      "example": "User: /order service=wa country=philippines qty=3 → Bot: per-order success/failure summary",
       "notes": "Supports operator, maxPrice, fixed, and qty."
     },
     {
@@ -78,7 +82,6 @@
       "examples": [
         "User: /orders → Bot: recent orders list"
       ],
-      "example": "User: /orders → Bot: recent orders list",
       "notes": "Returns a compact list."
     },
     {
@@ -88,7 +91,6 @@
       "examples": [
         "User: /prices service=wa country=vietnam → Bot: prices payload"
       ],
-      "example": "User: /prices service=wa country=vietnam → Bot: prices payload",
       "notes": "Service is required."
     },
     {
@@ -98,7 +100,6 @@
       "examples": [
         "User: /retry 12345 → Bot: Retry requested for 12345"
       ],
-      "example": "User: /retry 12345 → Bot: Retry requested for 12345",
       "notes": "Also available from inline action buttons."
     },
     {
@@ -108,7 +109,6 @@
       "examples": [
         "User: /services philippines → Bot: service codes and names"
       ],
-      "example": "User: /services philippines → Bot: service codes and names",
       "notes": "Country can be a name or ID."
     },
     {
@@ -118,17 +118,15 @@
       "examples": [
         "User: /start → Bot: HeroSMS OTP bot for authorized users..."
       ],
-      "example": "User: /start → Bot: HeroSMS OTP bot for authorized users...",
       "notes": "Unauthorized users receive a denial message."
     },
     {
       "command": "/status",
-      "description": "Owner-only command to show defaults and basic runtime status.",
+      "description": "Owner-only command to show sanitized active defaults, Mongo override state, and runtime status.",
       "usage": "/status",
       "examples": [
-        "Owner: /status → Bot: active counts, defaults, polling, webhook URL"
+        "Owner: /status → Bot: active counts, runtime defaults, Mongo config override status"
       ],
-      "example": "Owner: /status → Bot: active counts, defaults, polling, webhook URL",
       "notes": "Only BOT_OWNER_IDS can use this command."
     }
   ],
@@ -140,6 +138,14 @@
     {
       "role": "assistant",
       "content": "Built a new Telegram-only HeroSMS bot project with grammY, MongoDB persistence, HTTP webhook routes in the same process, owner-gated authorization, concurrent order creation, polling recovery, inline activation actions, safe logging, and synced docs/env samples.\n\nFiles touched (35): .env.sample, DOCS.md, README.md, package.json, src/bot.js, src/commands/active.js…\nValidation: ✅ project passes syntax/basic checks after this edit."
+    },
+    {
+      "role": "user",
+      "content": "environtment variable are edited from user"
+    },
+    {
+      "role": "assistant",
+      "content": "Refined the existing Telegram HeroSMS bot with a Mongo-backed owner-only /env workflow, effective runtime config layer, masked audit trail, graceful no-Mongo fallback, and expanded owner /status output while preserving the existing user-facing command behavior and Telegram-only architecture.\n\nFiles touched (22): .env.sample, DOCS.md, package.json, src/bot.js, src/commands/env.js, src/commands/help.js…\nValidation: ✅ project passes syntax/basic checks after this edit."
     }
   ],
   "createdBy": "69ad9f13ec83100ea40b6560",
@@ -171,12 +177,12 @@
     {
       "key": "MONGODB_URI",
       "title": "MongoDB Connection URI",
-      "description": "MongoDB connection string used for persistence of orders, events, users, and webhook dedupe.",
-      "usage": "Required at boot for this bot because persistence is mandatory.",
+      "description": "Optional MongoDB connection string used for orders, audits, authorization records, webhook dedupe, and runtime config overrides.",
+      "usage": "If missing, the bot still runs with graceful in-memory fallbacks, but /env persistence is unavailable.",
       "howToGet": "Use a MongoDB Atlas or self-hosted MongoDB connection string.",
       "example": "mongodb+srv://user:pass@cluster.example/dbname",
       "isSecret": true,
-      "required": true
+      "required": false
     },
     {
       "key": "HERO_SMS_API_KEY",
@@ -191,8 +197,8 @@
     {
       "key": "HERO_SMS_BASE_URL",
       "title": "HeroSMS Base URL",
-      "description": "Base endpoint for HeroSMS API calls.",
-      "usage": "Defaults safely to https://hero-sms.com/stubs/handler_api.php when missing.",
+      "description": "HeroSMS API base URL used for provider requests.",
+      "usage": "Can be edited live through /env.",
       "howToGet": "Usually keep the default unless HeroSMS provides a custom endpoint.",
       "example": "https://hero-sms.com/stubs/handler_api.php",
       "isSecret": false,
@@ -201,9 +207,9 @@
     {
       "key": "BOT_OWNER_IDS",
       "title": "Bot Owner IDs",
-      "description": "Comma-separated Telegram user IDs with owner access and automatic authorization.",
-      "usage": "Used for owner-only commands and initial authorization.",
-      "howToGet": "Get your Telegram numeric user ID from Telegram tools or another bot.",
+      "description": "Comma-separated Telegram numeric IDs with owner access.",
+      "usage": "Can be edited through /env and applies live.",
+      "howToGet": "Get your Telegram numeric user ID from a Telegram ID bot or tool.",
       "example": "123456789,987654321",
       "isSecret": false,
       "required": false
@@ -306,7 +312,7 @@
       "examples": [
         "User: /help → Bot: /balance, /countries, /services..."
       ],
-      "notes": "Owner-only /status is shown only to owners."
+      "notes": "Owner-only /env and /status are shown only to owners."
     },
     {
       "command": "/balance",
@@ -400,12 +406,23 @@
     },
     {
       "command": "/status",
-      "description": "Owner-only command to show defaults and basic runtime status.",
+      "description": "Owner-only command to show sanitized active defaults, Mongo override state, and runtime status.",
       "usage": "/status",
       "examples": [
-        "Owner: /status → Bot: active counts, defaults, polling, webhook URL"
+        "Owner: /status → Bot: active counts, runtime defaults, Mongo config override status"
       ],
       "notes": "Only BOT_OWNER_IDS can use this command."
+    },
+    {
+      "command": "/env",
+      "description": "Owner-only runtime config management flow backed by MongoDB overrides.",
+      "usage": "/env, /env show KEY, /env edit KEY, /env cancel",
+      "examples": [
+        "Owner: /env → Bot: editable runtime config keys",
+        "Owner: /env show POLL_INTERVAL_MS → Bot: type, description, masked effective value",
+        "Owner: /env edit DEFAULT_MAX_PRICE → Bot: asks for a new value and confirmation"
+      ],
+      "notes": "Unauthorized users are denied. If MongoDB persistence is unavailable, the bot reports that edits cannot be saved."
     }
   ],
   "runStatuses": {
@@ -415,7 +432,7 @@
       "runId": "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7",
       "lastUserMessage": "environtment variable are edited from user",
       "startedAt": "2026-03-08T16:37:54.986Z",
-      "updatedAt": "2026-03-08T16:41:23.543Z",
+      "updatedAt": "2026-03-08T16:41:23.810Z",
       "message": "Syncing environment template with used env variables…",
       "commands": [
         {
@@ -483,7 +500,7 @@
     "runId": "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7",
     "lastUserMessage": "environtment variable are edited from user",
     "startedAt": "2026-03-08T16:37:54.986Z",
-    "updatedAt": "2026-03-08T16:41:23.543Z",
+    "updatedAt": "2026-03-08T16:41:23.810Z",
     "message": "Syncing environment template with used env variables…",
     "commands": [
       {
