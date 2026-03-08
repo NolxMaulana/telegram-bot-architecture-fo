@@ -407,5 +407,25 @@
       ],
       "notes": "Only BOT_OWNER_IDS can use this command."
     }
-  ]
+  ],
+  "runStatuses": {
+    "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7": {
+      "phase": "editing",
+      "stage": "chat",
+      "runId": "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7",
+      "lastUserMessage": "environtment variable are edited from user",
+      "startedAt": "2026-03-08T16:37:54.986Z",
+      "updatedAt": "2026-03-08T16:41:21.272Z",
+      "message": "Preparing workspace for safe edits…"
+    }
+  },
+  "runStatus": {
+    "phase": "editing",
+    "stage": "chat",
+    "runId": "4aeab1ab-32cc-4f72-8076-5d270f91a6bb:mmhz7btt:ucsij7",
+    "lastUserMessage": "environtment variable are edited from user",
+    "startedAt": "2026-03-08T16:37:54.986Z",
+    "updatedAt": "2026-03-08T16:41:21.272Z",
+    "message": "Preparing workspace for safe edits…"
+  }
 }
